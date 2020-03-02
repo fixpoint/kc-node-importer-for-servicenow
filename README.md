@@ -1,47 +1,47 @@
 # kc-node-importer-for-servicenow
-Kompira cloud Sonar�Ō��o�����m�[�h����ServiceNow�̍\�����Ƃ��ăC���|�[�g����X�N���v�g
 
-## �Z�b�g�A�b�v
+Kompira cloud Sonarで検出したノード情報をServiceNowの構成情報としてインポートするスクリプト
 
-### Script Include�o�^
+## セットアップ
 
-ServiceNow�Ǘ���ʂ���A `System definition` => `Script Include` �Ɉړ��B
-�uNew�v���N���b�N���A���L�̒ʂ���͂��ASubmit�œo�^����B
+### Script Include登録
 
-- Name: `KcNodeImporter` (�K�����̖��O�B�ύX����Ɠ��삵�܂���)
+ServiceNow管理画面から、 `System definition` => `Script Include` に移動。
+「New」をクリックし、下記の通り入力し、Submitで登録する。
+
+- Name: `KcNodeImporter` (この名前でないと動作しません)
 - Description: `Script to import Kompira cloud node into CMDB`
-- Script: �������Ă��� `KcNodeImporter.js` �̒��g�����̂܂܃R�s�y
+- Script: 同梱している `KcNodeImporter.js` の中身を貼り付ける
 
-### Scheduled Jobs�o�^
+### Scheduled Jobs登録
 
-ServiceNow�Ǘ���ʂ���A `System definition` => `Scheduled Jobs` �Ɉړ��B
-�uNew�v���N���b�N���A `Automatically run a script of your choosing` ��I���A���̉�ʂɂĉ��L�̒ʂ���͂��ASubmit�œo�^����B
+ServiceNow管理画面から、 `System definition` => `Scheduled Jobs` に移動。
+「New」をクリックし、 `Automatically run a script of your choosing` を選択、次の画面にて下記の通り入力し、Submitで登録する。
 
-- Name: �K���ȃW���u��( `Kompira cloud sync` ��)
-- Run: ������s�������Ԋu��ݒ�
-- Run this script: �������Ă��� `ScheduledScript_Sample.js` �̒��g���R�s�y���A���L�̕����������̃X�y�[�X���ɏ���������
-    - `{Kompira cloud API token}` : Kompira cloud��API�g�[�N��
-    - `�Ǘ��m�[�h���X�g��URL` : �����������Ǘ��m�[�h�ꗗ��URL
-      KC���Ƀl�b�g���[�N���������݂���ꍇ�́A�����L�q���邱�Ƃł܂Ƃ߂ăC���|�[�g���\
-      �܂��A`[ServiceNow domain name]` ���w�肷�邱�ƂŃl�b�g���[�N���ɈقȂ�ServiceNow�h���C���ɃC���|�[�g���\
+- Name: 任意のジョブ名を設定( `Kompira cloud sync` 等)
+- Run: 定期実行したい間隔を設定
+- Run this script: 同梱している `ScheduledScript_Sample.js` の中身を貼り付け、下記の部分を自分のスペース情報に書き換える
+    - `{Kompira cloud API token}` : Kompira cloudのAPIトークン
+    - `管理ノードリストのURL` : 同期したい管理ノード一覧のURL
+      KC側にネットワークが複数存在する場合は、複数記述することでまとめてインポートが可能
+      また、`[ServiceNow domain name]` を指定することでネットワーク毎に異なるServiceNowドメインにインポートが可能
 
-���A������Kompira cloud�X�y�[�X����C���|�[�g����ꍇ�́A�X�y�[�X���W���u��o�^���邱�ƂŃC���|�[�g���s���B
-
-
-## ���̑��⑫����
-
-### �蓮���s
-
-��LScheduled Jobs�ɓo�^�����W���u���J���A�uExecute Now�v�Ŏ��s�B
-�������́A `Scripts - Background` �ɏ�L�W���u�̃X�N���v�g��\��t���Ď��s�ł��B
+尚、複数のKompira cloudスペースからインポートする場合は、スペース分ジョブを登録することでインポートを行う。
 
 
-### ���m�̖��E�y�юd�l
+## その他補足事項
 
-- Kompira cloud���̃m�[�hID�i�[�Ɂu���Y�Ǘ��ԍ�(Asset tag)�v�J�������g�p���Ă��܂�
-  �{�J�����ɂ����Kc���m�[�h�̊Ǘ����s���Ă��邽�߁A�C�ӂ̒l�ɏ����������ꍇ�͐���ɓ��삵�܂���B
-- Kc�m�[�h�ɓo�^����Ă���u�m�[�g�v�ɂ��ẮAComments�J�����ɏ������܂�܂�
-  �������ASN���ɕ��������������邽�߁A4000�����ȏ�̏ꍇ�͐؂�̂Ă��܂��B
-  �܂��ALinux�T�[�o�[�ȊO�ł�SN���̉�ʎd�l�ɂ��AComments���̂��\������܂���(�f�[�^�Ƃ��Ă͓����Ă��܂�)
-- Hostname�ɂ��Ă�DNS�ɂ�薼�O�����ł���ꍇ�̂ݓ���܂�(Kc���d�l)
-- Manufacturer, Model ID, CPU manufacturer�ɂ��ẮA���݂��Ȃ��ꍇ�Y���e�[�u���ɐV�K�f�[�^���ǉ�����܂�
+### 手動実行
+
+上記Scheduled Jobsに登録したジョブを開き、「Execute Now」で実行。
+もしくは、 `Scripts - Background` に上記ジョブのスクリプトを貼り付けて実行でも可。
+
+### 制約事項
+
+- Kompira cloud側のノードID格納に「資産管理番号(Asset tag)」カラムを使用しています
+  本カラムによってKcのノードとの結びつけを行うため、この値は書き換えないようにしてください。
+- Kcノードに登録されている「ノート」については、Commentsカラムに書き込まれます
+  ただしServiceNowの制限により、4000文字以上の場合は切り捨てられます。
+  また、Linuxサーバー以外ではSN側の画面仕様により、Comments自体が表示されません(データとしては入っています)
+- HostnameについてはDNSにより名前解決できる場合のみ入ります(Kc側の仕様となります)
+- Manufacturer, Model ID, CPU manufacturerについては、存在しない場合該当テーブルに新規データが追加されます
